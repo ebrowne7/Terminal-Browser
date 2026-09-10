@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TERM-OS v1.09 (1998)</title>
+  <style>
+    /* 90s CRT Terminal Styling */
+    :root {
+      --bg-color: #0d0f0d;
+      --text-color: #33ff33;
+      --text-dim: #1b8a1b;
+      --text-warn: #ffaa00;
+      --font-family: 'Courier New', Courier, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: var(--font-family);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Outer Monitor Frame */
+    .terminal-container {
+      width: 100%;
+      max-width: 900px;
+      height: 600px;
+      border: 2px solid var(--text-dim);
+      box-shadow: 0 0 15px rgba(51, 255, 51, 0.2);
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: rgba(0, 15, 0, 0.95);
+    }
+
+    /* CRT Scanline Overlay Effect */
+    .terminal-container::before {
+      content: " ";
+      display: block;
+      position: absolute;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+      background-size: 100% 4px;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* Output Scroll Region */
+    #output-log {
+      flex: 1;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      margin-bottom: 10px;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    /* Input Line */
+    .input-line {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .prompt {
+      margin-right: 8px;
+      color: var(--text-color);
+      font-weight: bold;
+    }
+
+    #cmd-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-color);
+      font-family: var(--font-family);
+      font-size: 14px;
+    }
+
+    .dim { color: var(--text-dim); }
+    .warn { color: var(--text-warn); }
+  </style>
+</head>
+<body>
+
+  <div class="terminal-container" onclick="document.getElementById('cmd-input').focus()">
+    <div id="output-log"></div>
+    <div class="input-line">
+      <span class="prompt" id="prompt-label">guest@nodes-net:~#</span>
+      <input type="text" id="cmd-input" autofocus autocomplete="off" spellcheck="false" />
+    </div>
+  </div>
+
+  <script src="terminal.js"></script>
+</body>
+</html>
