@@ -15,6 +15,22 @@ export function createFilesystemCommands(context) {
         const encrypted = child.isEncrypted ? ' (ENCRYPTED)' : '';
         ui.print(`${type} ${child.name}${encrypted}`);
       });
+
+      const listedPath = args[0]
+        ? `/${vfs.getPathSegments(args[0]).join('/')}`
+        : vfs.getAbsolutePath();
+      const inspectionObjective = trace.currentIp === '127.0.0.1' && listedPath === '/home/user'
+        ? 'inspect_home'
+        : trace.currentIp === '192.168.1.104' && listedPath === '/sys'
+          ? 'inspect_bank_files'
+          : trace.currentIp === '10.0.99.1' && listedPath === '/classified'
+            ? 'inspect_military_files'
+            : null;
+      if (inspectionObjective && missions.completeObjective(inspectionObjective)) {
+        ui.print('[OBJECTIVE UPDATED] Directory inspection complete.', 'warn');
+        checkWinState();
+      }
+      if (missions.completeAction('inspect')) checkWinState();
     },
 
     cd: async args => {
@@ -35,6 +51,17 @@ export function createFilesystemCommands(context) {
         return ui.print(`[ERROR] File encrypted. Run 'crack ${args[0]}' to execute key recovery.`, 'warn');
       }
       ui.print(file.content);
+
+      const readObjective = trace.currentIp === '192.168.1.104' && file.name === 'passwords.enc'
+        ? 'read_pass'
+        : trace.currentIp === '10.0.99.1' && file.name === 'missile_schematics.enc'
+          ? 'read_payload'
+          : null;
+      if (readObjective && missions.completeObjective(readObjective)) {
+        ui.print('[OBJECTIVE UPDATED] Classified file read successfully.', 'warn');
+        checkWinState();
+      }
+      if (missions.completeAction('read')) checkWinState();
     },
 
     crack: async args => {
@@ -70,6 +97,7 @@ export function createFilesystemCommands(context) {
       } else {
         ui.print(`\n[DECRYPT SUCCESS] Decrypted contents of '${args[0]}'.`);
       }
+      if (missions.completeAction('crack')) checkWinState();
     },
 
     download: async args => {
@@ -87,6 +115,11 @@ export function createFilesystemCommands(context) {
         ui.print('\n[OBJECTIVE UPDATED] Downloaded Bank accounts database!', 'warn');
         checkWinState();
       }
+      if (trace.currentIp === '10.0.99.1' && file.name === 'missile_schematics.enc' && missions.completeObjective('download_payload')) {
+        ui.print('\n[OBJECTIVE UPDATED] Exfiltrated the classified schematics!', 'warn');
+        checkWinState();
+      }
+      if (missions.completeAction('download') || missions.completeAction('exfiltrate')) checkWinState();
     },
 
     rm: async args => {

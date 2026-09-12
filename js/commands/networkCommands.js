@@ -23,6 +23,7 @@ export function createNetworkCommands(context) {
         ui.print(`\n[OBJECTIVE UPDATED] Probed ${node.hostname}!`, 'warn');
         checkWinState();
       }
+      if (missions.completeAction('probe')) checkWinState();
     },
 
     bounce: async args => {
@@ -34,6 +35,12 @@ export function createNetworkCommands(context) {
           : `[ERROR] IP '${args[0]}' is not an open proxy node.`, 'warn');
       }
       ui.print(`[PROXY ADDED] Active Chain: Localhost -> ${network.bounceChain.join(' -> ')}`);
+      const objectiveId = args[0] === '10.0.8.2' ? 'add_proxy_us' : args[0] === '10.0.8.9' ? 'add_proxy_eu' : null;
+      if (objectiveId && missions.completeObjective(objectiveId)) {
+        ui.print('[OBJECTIVE UPDATED] Relay added to active route.', 'warn');
+        checkWinState();
+      }
+      if (missions.completeAction('bounce')) checkWinState();
     },
 
     connect: async args => {
@@ -48,6 +55,12 @@ export function createNetworkCommands(context) {
 
       const node = network.get(targetIp);
       ui.print(`[CONNECTED] Session active on ${node.hostname}.`, 'warn');
+      const relayObjective = targetIp === '10.0.8.2' ? 'connect_proxy_us' : targetIp === '10.0.8.9' ? 'connect_proxy_eu' : null;
+      if (relayObjective && missions.completeObjective(relayObjective)) {
+        ui.print('[OBJECTIVE UPDATED] Relay connection established.', 'warn');
+        checkWinState();
+      }
+      if (missions.completeAction('connect')) checkWinState();
       if (node.baseTraceRate > 0) {
         ui.print(`WARNING: Security active! Base Trace: ${node.baseTraceRate}%/s | Effective Trace: ${trace.currentEffectiveRate.toFixed(1)}%/s (${network.bounceChain.length} Proxies)`);
       } else {
@@ -58,10 +71,22 @@ export function createNetworkCommands(context) {
 
     disconnect: async () => {
       if (trace.currentIp === '127.0.0.1') return ui.print('Already connected to localhost.');
+      const disconnectedIp = trace.currentIp;
       trace.disconnect();
       network.bounceChain.length = 0;
       ui.print('[DISCONNECTED] Session terminated. Route chain reset.');
       ui.setPrompt(trace.currentIp, trace.getActiveVFS().getAbsolutePath(), network);
+
+      const disconnectObjective = disconnectedIp === '192.168.1.104'
+        ? 'disconnect_bank'
+        : disconnectedIp === '10.0.99.1' && missions.objectives.find(item => item.id === 'disconnect_defense')?.completed
+          ? 'return_home'
+          : disconnectedIp === '10.0.99.1' ? 'disconnect_defense' : null;
+      if (disconnectObjective && missions.completeObjective(disconnectObjective)) {
+        ui.print('[OBJECTIVE UPDATED] Clean disconnection recorded.', 'warn');
+        checkWinState();
+      }
+      if (missions.completeAction('disconnect')) checkWinState();
     }
   };
 }

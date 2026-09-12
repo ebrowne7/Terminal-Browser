@@ -1,6 +1,7 @@
 export class TraceEngine {
-  constructor(network, hudNodeEl, traceFillEl, traceValEl, onTraceBurn) {
+  constructor(network, levelManager, hudNodeEl, traceFillEl, traceValEl, onTraceBurn) {
     this.network = network;
+    this.levelManager = levelManager;
     this.hudNodeEl = hudNodeEl;
     this.traceFillEl = traceFillEl;
     this.traceValEl = traceValEl;
@@ -21,7 +22,8 @@ export class TraceEngine {
 
     if (node.baseTraceRate > 0) {
       const proxyHops = this.network.bounceChain.length;
-      this.currentEffectiveRate = node.baseTraceRate / (1 + 0.5 * proxyHops);
+      const stagePressure = this.levelManager?.traceBonus || 0;
+      this.currentEffectiveRate = (node.baseTraceRate + stagePressure) / (1 + 0.5 * proxyHops);
       this.timer = setInterval(() => {
         this.tracePercent += this.currentEffectiveRate / 2;
         if (this.tracePercent >= 100) {
