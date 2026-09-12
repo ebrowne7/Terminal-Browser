@@ -16,6 +16,7 @@ export function createSystemCommands(context) {
       ui.print('  disconnect        - Terminate remote session and clear route');
       ui.print('  objectives [level] - Display objectives for a level');
       ui.print('  level             - Display the current level briefing');
+      ui.print('  levels            - Display all level states');
       ui.print('  stage             - Display the current stage briefing');
       ui.print('  tutorial          - Show the terminal tutorial');
       ui.print('  save              - Manually save current state to browser storage');

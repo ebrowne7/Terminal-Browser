@@ -48,6 +48,32 @@ export class LevelManager {
     };
   }
 
+  getLevelObjectiveIds(levelNumber) {
+    const level = this.levels[levelNumber - 1];
+    return level?.stages.flatMap(stage => stage.objectiveIds || [stage.objectiveId]) || [];
+  }
+
+  getLevelState(levelNumber, objectives = []) {
+    const level = this.levels[levelNumber - 1];
+    if (!level) return null;
+
+    const levelObjectiveIds = this.getLevelObjectiveIds(levelNumber);
+    const completed = levelObjectiveIds.every(id => objectives.find(item => item.id === id)?.completed);
+    const previousLevelComplete = levelNumber === 1 || this.getLevelState(levelNumber - 1, objectives)?.state === 'COMPLETED';
+
+    return {
+      level: levelNumber,
+      title: level.title,
+      state: completed ? 'COMPLETED' : previousLevelComplete ? 'ACTIVE' : 'LOCKED',
+      completedObjectives: levelObjectiveIds.filter(id => objectives.find(item => item.id === id)?.completed).length,
+      totalObjectives: levelObjectiveIds.length
+    };
+  }
+
+  getLevelStates(objectives = []) {
+    return this.levels.map((_, index) => this.getLevelState(index + 1, objectives));
+  }
+
   completeObjective(objectiveId, objectives = []) {
     if (!this.stage?.objectiveIds?.includes(objectiveId) && this.stage?.objectiveId !== objectiveId) return false;
     return this.advanceIfStageComplete(objectives);
