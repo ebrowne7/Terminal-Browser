@@ -75,26 +75,40 @@ export class LevelManager {
   }
 
   completeObjective(objectiveId, objectives = []) {
-    if (!this.stage?.objectiveIds?.includes(objectiveId) && this.stage?.objectiveId !== objectiveId) return false;
-    return this.advanceIfStageComplete(objectives);
+    if (!this.getLevelObjectiveIds(this.currentLevel).includes(objectiveId)) return false;
+    return this.advanceProgress(objectives);
   }
 
   completeAction(action, objectives = []) {
-    const currentObjective = objectives.find(item => (
-      item.id === this.stage?.objectiveId && item.action === action
+    const levelObjectiveIds = this.getLevelObjectiveIds(this.currentLevel);
+    const matchingObjective = objectives.find(item => (
+      levelObjectiveIds.includes(item.id) && item.action === action && !item.completed
     ));
-    if (!currentObjective) return false;
-    return this.advanceIfStageComplete(objectives);
+    if (!matchingObjective) return false;
+    matchingObjective.completed = true;
+    return this.advanceProgress(objectives);
   }
 
-  advanceIfStageComplete(objectives) {
-    const objectiveIds = this.stage.objectiveIds || [this.stage.objectiveId];
-    const complete = objectiveIds.every(id => objectives.find(item => item.id === id)?.completed);
-    if (!complete) return false;
+  advanceProgress(objectives) {
+    const levelComplete = this.getLevelObjectiveIds(this.currentLevel).every(id => (
+      objectives.find(item => item.id === id)?.completed
+    ));
 
-    if (this.currentStage < this.level.stages.length) {
+    while (this.currentStage < this.level.stages.length) {
+      const stageObjectiveIds = this.stage.objectiveIds || [this.stage.objectiveId];
+      const stageComplete = stageObjectiveIds.every(id => (
+        objectives.find(item => item.id === id)?.completed
+      ));
+      if (!stageComplete) break;
       this.currentStage += 1;
-    } else if (this.currentLevel < this.levels.length) {
+    }
+
+    if (!levelComplete) {
+      this.onChange({ stageAdvanced: true });
+      return true;
+    }
+
+    if (this.currentLevel < this.levels.length) {
       this.levelWon = true;
       this.currentLevel += 1;
       this.currentStage = 1;

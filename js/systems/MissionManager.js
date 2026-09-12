@@ -22,12 +22,16 @@ export class MissionManager {
   }
 
   completeAction(action) {
-    const stage = this.levelManager?.stage;
-    const stageObjectiveIds = stage?.objectiveIds || [stage?.objectiveId];
+    const levelObjectiveIds = this.levelManager?.getLevelObjectiveIds(this.levelManager.currentLevel) || [];
     const objective = this.objectives.find(item => (
-      item.action === action && stageObjectiveIds.includes(item.id)
+      item.action === action && levelObjectiveIds.includes(item.id) && !item.completed
     ));
-    return objective ? this.completeObjective(objective.id) : false;
+    if (!objective) return false;
+
+    objective.completed = true;
+    this.levelManager.advanceProgress(this.objectives);
+    this.onChange();
+    return true;
   }
 
   getObjectivesForLevel(levelNumber = this.levelManager.currentLevel) {
