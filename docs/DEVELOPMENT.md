@@ -2,7 +2,7 @@
 
 ## Entry Point
 
-`index3.html` loads `styles.css` and the ES module entry point `js/main.js`. No package manager or build step is required.
+`index.html` loads `styles.css` and the ES module entry point `js/main.js`. No package manager or build step is required.
 
 ## Module Responsibilities
 

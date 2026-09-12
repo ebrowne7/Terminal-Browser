@@ -4,7 +4,7 @@ A browser-based terminal game where you investigate fictional systems, build pro
 
 ## Run
 
-No build tools or dependencies are required. Open `index3.html` in a modern browser, or serve the folder with any local static web server.
+No build tools or dependencies are required. Open `index.html` in a modern browser, or serve the folder with any local static web server.
 
 ## Gameplay
 
@@ -22,7 +22,7 @@ The game includes 10 levels, 10 stages per level, increasing trace pressure, lev
 
 ## Structure
 
-- `index3.html` - Game page
+- `index.html` - Game page
 - `styles.css` - Terminal styling
 - `js/config/` - Mission, network, stage, and level data
 - `js/core/` - Virtual filesystem and save-state models
