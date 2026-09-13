@@ -48,15 +48,15 @@ const ACTION_LABELS = {
   disconnect: 'Disconnect without leaving an active session'
 };
 
-const ACTION_HINTS = {
-  inspect: "Run 'ls' on the current host",
-  connect: "Use 'connect <IP>' for a reachable host",
-  probe: "Use 'probe <IP>' on a reachable host",
-  bounce: "Use 'bounce <IP>' for an available relay",
-  read: "Use 'cat <path>' on a decrypted file",
-  crack: "Use 'crack /sys/passwords.enc' or 'crack /classified/missile_schematics.enc'",
-  download: "Use 'download /sys/accounts.db' or a decrypted payload",
-  disconnect: "Use 'disconnect' while connected to a remote host"
+const ACTION_DISPLAY_LABELS = {
+  inspect: 'Inspect target',
+  connect: 'Connect',
+  probe: 'Probe target',
+  bounce: 'Add relay',
+  read: 'Read file',
+  crack: 'Crack file',
+  download: 'Download payload',
+  disconnect: 'Disconnect'
 };
 
 const STAGE_GOALS = [
@@ -93,13 +93,13 @@ export const ADDITIONAL_LEVELS = LEVEL_THEMES.map(([title, intro], levelIndex) =
 
     return {
     number: stageIndex + 1,
-    title: `${title} // ${String(stageIndex + 1).padStart(2, '0')}: ${stageGoal.toUpperCase()}`,
-    intro: `${intro} Current objective: ${stageGoal.toLowerCase()}. ${actions.map(action => ACTION_LABELS[action].toLowerCase()).join(', then ')}.`,
+    title: `${String(stageIndex + 1).padStart(2, '0')}: ${stageGoal.toUpperCase()}`,
+    intro: `Stage focus: ${stageGoal.toLowerCase()}. Complete these actions: ${actions.map(action => ACTION_LABELS[action].toLowerCase()).join(', then ')}.`,
     objectiveIds: actions.map((action, actionIndex) => (
       `level_${levelIndex + 2}_stage_${stageIndex + 1}_task_${actionIndex + 1}`
     )),
     objectives: actions.map((action, actionIndex) => ({
-      description: `${stageGoal}: ${ACTION_LABELS[action]} (${ACTION_HINTS[action]})`,
+      description: ACTION_DISPLAY_LABELS[action],
       action
     })),
     traceBonus: 5 + (levelIndex * 1.5) + (stageIndex * 0.5)

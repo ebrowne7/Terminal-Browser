@@ -44,6 +44,11 @@ export class MissionManager {
     return this.objectives.filter(objective => objectiveIds.includes(objective.id));
   }
 
+  getObjectivesForStage() {
+    const objectiveIds = this.levelManager?.getStageObjectiveIds() || [];
+    return this.objectives.filter(objective => objectiveIds.includes(objective.id));
+  }
+
   checkMissionComplete() {
     return this.levelManager?.isCampaignComplete(this.objectives) || false;
   }

@@ -14,7 +14,7 @@ export function createSystemCommands(context) {
       ui.print('  bounce <ip>       - Add open proxy node to active route chain');
       ui.print('  connect <ip>      - Connect to host via proxy route');
       ui.print('  disconnect        - Terminate remote session and clear route');
-      ui.print('  objectives [level] - Display objectives for a level');
+      ui.print('  objectives - Display objectives for the active level');
       ui.print('  level             - Display the current level briefing');
       ui.print('  levels            - Display all level states');
       ui.print('  stage             - Display the current stage briefing');

@@ -24,7 +24,7 @@ This reveals relay nodes that can be added to your route.
 | `download <file>` | Copy a file to localhost |
 | `rm <file>` | Delete a file |
 | `disconnect` | End the current remote session |
-| `objectives [level]` | Show objectives for a level |
+| `objectives` | Show objectives for the active level |
 | `levels` | Show level states and progress |
 | `level` | Show the current level briefing |
 | `save` / `load` | Save or restore progress |
