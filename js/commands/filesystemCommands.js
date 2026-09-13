@@ -68,7 +68,11 @@ export function createFilesystemCommands(context) {
       if (!args[0]) return ui.print('Usage: crack <filename>');
       const file = trace.getActiveVFS().resolve(args[0]);
       if (!file || file.type !== 'file') return ui.print(`Target file '${args[0]}' not found.`);
-      if (!file.isEncrypted) return ui.print(`File '${args[0]}' is already decrypted.`);
+      if (!file.isEncrypted) {
+        ui.print(`File '${args[0]}' is already decrypted.`);
+        if (missions.completeAction('crack')) checkWinState();
+        return;
+      }
 
       ui.print(`Bruteforcing encryption keys for '${args[0]}'...`);
       const hex = '0123456789ABCDEF';

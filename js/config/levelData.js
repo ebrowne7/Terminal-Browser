@@ -1,14 +1,75 @@
-const STAGE_ACTIONS = [
-  { action: 'inspect', label: 'Inspect the target filesystem' },
-  { action: 'connect', label: 'Establish a controlled connection' },
-  { action: 'probe', label: 'Probe the target for open services' },
-  { action: 'bounce', label: 'Add another relay to the route' },
-  { action: 'read', label: 'Read the intelligence you recovered' },
-  { action: 'crack', label: 'Break through the target encryption' },
-  { action: 'download', label: 'Download the mission payload' },
-  { action: 'disconnect', label: 'Disconnect without leaving an active session' },
-  { action: 'inspect', label: 'Review the evidence in your workspace' },
-  { action: 'exfiltrate', label: 'Complete the final exfiltration step' }
+const STAGE_PLANS = [
+  [
+    ['inspect'], ['bounce', 'connect'], ['probe'], ['inspect', 'read'], ['crack'],
+    ['read'], ['download'], ['disconnect'], ['inspect', 'read'], ['download', 'disconnect']
+  ],
+  [
+    ['bounce'], ['connect', 'probe'], ['inspect'], ['read'], ['crack', 'read'],
+    ['bounce', 'connect'], ['probe', 'inspect'], ['download'], ['disconnect'], ['download', 'disconnect']
+  ],
+  [
+    ['inspect', 'probe'], ['connect'], ['probe', 'inspect', 'read'], ['crack'], ['read', 'download'],
+    ['disconnect'], ['bounce', 'connect'], ['probe', 'crack'], ['read'], ['download', 'disconnect']
+  ],
+  [
+    ['bounce', 'connect'], ['probe'], ['inspect', 'read'], ['crack', 'read'], ['download'],
+    ['disconnect'], ['inspect'], ['bounce', 'connect', 'probe'], ['crack', 'read', 'download'], ['disconnect']
+  ],
+  [
+    ['inspect'], ['probe', 'inspect'], ['bounce', 'connect'], ['read'], ['crack'], ['read', 'download'],
+    ['disconnect'], ['bounce', 'connect'], ['probe', 'inspect', 'crack'], ['read', 'download', 'disconnect']
+  ],
+  [
+    ['bounce'], ['connect'], ['probe', 'inspect'], ['crack', 'read'], ['download', 'disconnect'],
+    ['bounce', 'connect', 'probe'], ['inspect'], ['crack'], ['read', 'download'], ['disconnect']
+  ],
+  [
+    ['inspect', 'probe'], ['bounce', 'connect'], ['inspect'], ['crack'], ['read'], ['download'],
+    ['disconnect'], ['bounce', 'connect', 'probe'], ['inspect', 'crack', 'read'], ['download', 'disconnect']
+  ],
+  [
+    ['bounce', 'connect'], ['probe', 'inspect', 'read'], ['crack'], ['read', 'download'], ['disconnect'],
+    ['inspect'], ['bounce', 'connect'], ['probe', 'inspect', 'crack'], ['read', 'download'], ['disconnect']
+  ],
+  [
+    ['inspect'], ['bounce', 'connect', 'probe'], ['inspect', 'read'], ['crack', 'read'], ['download'],
+    ['disconnect'], ['bounce', 'connect'], ['probe'], ['inspect', 'crack', 'read', 'download'], ['disconnect']
+  ]
+];
+
+const ACTION_LABELS = {
+  inspect: 'Inspect the target filesystem',
+  connect: 'Establish a controlled connection',
+  probe: 'Probe the target for open services',
+  bounce: 'Add another relay to the route',
+  read: 'Read the intelligence you recovered',
+  crack: 'Break through the target encryption',
+  download: 'Download the mission payload',
+  disconnect: 'Disconnect without leaving an active session'
+};
+
+const ACTION_HINTS = {
+  inspect: "Run 'ls' on the current host",
+  connect: "Use 'connect <IP>' for a reachable host",
+  probe: "Use 'probe <IP>' on a reachable host",
+  bounce: "Use 'bounce <IP>' for an available relay",
+  read: "Use 'cat <path>' on a decrypted file",
+  crack: "Use 'crack /sys/passwords.enc' or 'crack /classified/missile_schematics.enc'",
+  download: "Use 'download /sys/accounts.db' or a decrypted payload",
+  disconnect: "Use 'disconnect' while connected to a remote host"
+};
+
+const STAGE_GOALS = [
+  'Locate the signal source',
+  'Assemble a quiet route',
+  'Map the exposed services',
+  'Verify the useful evidence',
+  'Unlock the protected layer',
+  'Interpret the recovered intelligence',
+  'Move the evidence to safety',
+  'Erase the active connection',
+  'Cross-check the collected evidence',
+  'Leave the network cold'
 ];
 
 const LEVEL_THEMES = [
@@ -27,19 +88,29 @@ export const ADDITIONAL_LEVELS = LEVEL_THEMES.map(([title, intro], levelIndex) =
   number: levelIndex + 2,
   title,
   intro,
-  stages: STAGE_ACTIONS.map((stage, stageIndex) => ({
+  stages: STAGE_PLANS[levelIndex].map((actions, stageIndex) => {
+    const stageGoal = STAGE_GOALS[stageIndex];
+
+    return {
     number: stageIndex + 1,
-    title: `${title} // ${String(stageIndex + 1).padStart(2, '0')}`,
-    intro: `${intro} ${stage.label}.`,
-    objectiveId: `level_${levelIndex + 2}_stage_${stageIndex + 1}`,
-    description: `Level ${levelIndex + 2}, Stage ${stageIndex + 1}: ${stage.label}`,
-    action: stage.action,
+    title: `${title} // ${String(stageIndex + 1).padStart(2, '0')}: ${stageGoal.toUpperCase()}`,
+    intro: `${intro} Current objective: ${stageGoal.toLowerCase()}. ${actions.map(action => ACTION_LABELS[action].toLowerCase()).join(', then ')}.`,
+    objectiveIds: actions.map((action, actionIndex) => (
+      `level_${levelIndex + 2}_stage_${stageIndex + 1}_task_${actionIndex + 1}`
+    )),
+    objectives: actions.map((action, actionIndex) => ({
+      description: `${stageGoal}: ${ACTION_LABELS[action]} (${ACTION_HINTS[action]})`,
+      action
+    })),
     traceBonus: 5 + (levelIndex * 1.5) + (stageIndex * 0.5)
-  }))
+  };
+  })
 }));
 
-export const LEVEL_OBJECTIVES = ADDITIONAL_LEVELS.flatMap(level => level.stages.map(stage => ({
-  id: stage.objectiveId,
-  description: stage.description,
-  action: stage.action
-})));
+export const LEVEL_OBJECTIVES = ADDITIONAL_LEVELS.flatMap(level => level.stages.flatMap(stage => (
+  stage.objectives.map((objective, objectiveIndex) => ({
+    id: stage.objectiveIds[objectiveIndex],
+    description: objective.description,
+    action: objective.action
+  }))
+)));

@@ -53,6 +53,10 @@ export class LevelManager {
     return level?.stages.flatMap(stage => stage.objectiveIds || [stage.objectiveId]) || [];
   }
 
+  getStageObjectiveIds() {
+    return this.stage?.objectiveIds || [this.stage?.objectiveId];
+  }
+
   getLevelState(levelNumber, objectives = []) {
     const level = this.levels[levelNumber - 1];
     if (!level) return null;
@@ -80,9 +84,9 @@ export class LevelManager {
   }
 
   completeAction(action, objectives = []) {
-    const levelObjectiveIds = this.getLevelObjectiveIds(this.currentLevel);
+    const stageObjectiveIds = this.getStageObjectiveIds();
     const matchingObjective = objectives.find(item => (
-      levelObjectiveIds.includes(item.id) && item.action === action && !item.completed
+      stageObjectiveIds.includes(item.id) && item.action === action && !item.completed
     ));
     if (!matchingObjective) return false;
     matchingObjective.completed = true;

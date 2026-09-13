@@ -30,6 +30,7 @@ export function createNetworkCommands(context) {
       if (!args[0]) return ui.print('Usage: bounce <IP>');
       const result = network.addProxy(args[0]);
       if (!result.success) {
+        if (result.reason === 'duplicate' && missions.completeAction('bounce')) checkWinState();
         return ui.print(result.reason === 'duplicate'
           ? `Proxy ${args[0]} already present in route.`
           : `[ERROR] IP '${args[0]}' is not an open proxy node.`, 'warn');

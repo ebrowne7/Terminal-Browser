@@ -46,15 +46,13 @@ export class SaveManager {
       const state = JSON.parse(saved);
       if (!GameState.isValid(state)) return false;
 
-      if (state.version === GameState.version) {
-        this.missions.objectives = state.objectives;
-      } else {
-        const savedObjectives = new Map(state.objectives.map(objective => [objective.id, objective]));
-        this.missions.objectives = this.missions.objectives.map(objective => ({
-          ...objective,
-          completed: savedObjectives.get(objective.id)?.completed || false
-        }));
-      }
+      const savedObjectives = new Map(state.objectives.map(objective => [objective.id, objective]));
+      this.missions.objectives = this.missions.objectives.map(objective => ({
+        ...objective,
+        completed: savedObjectives.get(objective.id)?.completed
+          || this.findLegacyObjective(state.objectives, objective)?.completed
+          || false
+      }));
       this.levelManager.load(state.currentLevel || 1, state.currentStage);
       for (const [ip, filesystem] of Object.entries(state.filesystems)) {
         if (this.network.has(ip)) this.network.getActiveVFS(ip).fromJSON(filesystem);
@@ -75,6 +73,16 @@ export class SaveManager {
     } catch {
       return false;
     }
+  }
+
+  findLegacyObjective(savedObjectives, objective) {
+    const stageMatch = objective.id.match(/^level_(\d+)_stage_(\d+)_task_/);
+    if (!stageMatch) return null;
+
+    const legacyId = `level_${stageMatch[1]}_stage_${stageMatch[2]}`;
+    return savedObjectives.find(savedObjective => (
+      savedObjective.id === legacyId && savedObjective.action === objective.action
+    ));
   }
 
   reset() {

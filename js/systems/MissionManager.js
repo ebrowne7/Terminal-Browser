@@ -22,9 +22,9 @@ export class MissionManager {
   }
 
   completeAction(action) {
-    const levelObjectiveIds = this.levelManager?.getLevelObjectiveIds(this.levelManager.currentLevel) || [];
+    const stageObjectiveIds = this.levelManager?.getStageObjectiveIds() || [];
     const objective = this.objectives.find(item => (
-      item.action === action && levelObjectiveIds.includes(item.id) && !item.completed
+      item.action === action && stageObjectiveIds.includes(item.id) && !item.completed
     ));
     if (!objective) return false;
 
